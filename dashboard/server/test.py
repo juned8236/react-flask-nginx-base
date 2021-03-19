@@ -1,16 +1,17 @@
-import sqlite3
+from databaseConnection import connect
+from werkzeug.security import generate_password_hash
 
-connection = sqlite3.connect('data.db')
+connection = connect()
 
 cursor = connection.cursor()
-tab =  'CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, username text, password text)'
+print(cursor)
+tab =  'CREATE TABLE IF NOT EXISTS users(id  SERIAL PRIMARY KEY, username text, password text)'
 cursor.execute(tab)
-
-user =(1, 'juned','1122')
-insert = "INSERT INTO users VALUES(?,?,?)"
-cursor.execute(insert,user)
+# user =(1, 'juned','1122')
+insert = f"INSERT INTO users VALUES(4,'ahmed','1122')"
+cursor.execute(insert)
  
-for row in cursor.execute('select * from users'):
-    print(row)
+# for row in cursor.execute('select * from users'):
+#     print(row)
 connection.commit()
 connection.close()

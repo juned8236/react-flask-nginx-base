@@ -1,6 +1,6 @@
 import sqlite3
 from flask_restful import Resource, reqparse
-
+from databaseConnection import connect
 class User:
     def __init__(self, _id, username, password):
         self.id = _id
@@ -9,15 +9,15 @@ class User:
 
     @classmethod
     def find_by_username(cls, username):
-        connection = sqlite3.connect('data.db')
+        connection = connect()
         cursor = connection.cursor()
-        query = "SELECT * FROM users where username=?"
-        result  = cursor.execute(query,(username,))
-        row = result.fetchone()
+        query = f"SELECT * FROM users where username='{username}'"
+        result  = cursor.execute(query)
+        row = cursor.fetchone()
+        print(row)
         if row:
             # user = User(row[0], row[1], row[2])
-            # user = cls(row[0], row[1], row[2])
-            user = cls(*row)
+            user = cls(row[0], row[1],  row[2])
         else:
             user = None       
         connection.close()
@@ -25,10 +25,10 @@ class User:
 
     @classmethod
     def find_by_id(cls, _id):
-        connection = sqlite3.connect('data.db')
+        connection = connect()
         cursor = connection.cursor()
-        query = "SELECT * FROM users where id=?"
-        result  = cursor.execute(query,(_id,))
+        query = f"SELECT * FROM users where id={_id}"
+        result  = cursor.execute(query)
         row = result.fetchone()
         if row:
             user = cls(*row)
@@ -40,17 +40,17 @@ class User:
     
     @classmethod
     def find_by_password(cls, password):
-        connection = sqlite3.connect('data.db')
+        connection = connect
         cursor = connection.cursor()
 
-        query = "SELECT * FROM users where password=?"
-        result  = cursor.execute(query,(password,))
+        query = f"SELECT * FROM users where password='{password}'"
+        result  = cursor.execute(query)
         row = result.fetchone()
         if row:
             user = cls(*row)
         else:
             user = None
-        
+        connection.commit()
         connection.close()
         return user
 
@@ -72,7 +72,7 @@ class UserRegister(Resource):
         connection = sqlite3.connect('data.db')
         cursor = connection.cursor()
         query = "Insert into users values(NULL,?,?)"
-        cursor.execute(query,(data['username'], data['password'] ) )
+        cursor.execute(query,(data['username'], generate_password_hash(data['password']) ) )
         
         connection.commit()
         connection.close()
